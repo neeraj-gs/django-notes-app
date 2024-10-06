@@ -4,6 +4,7 @@ pipeline{
     stages{
         stage("Code"){
             steps{
+                echo "Chnaged Jenkins File"
                 echo "Cloning the Code"
                 git url:"https://github.com/neeraj-gs/django-notes-app.git",branch:"main"
                 echo "Code Cloning successfull"

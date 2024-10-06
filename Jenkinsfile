@@ -1,43 +1,40 @@
-@Library("Shared") _
 pipeline{
-    
-    agent { label "vinod"}
+    agent {label "neeraj"}
     
     stages{
-        
-        stage("Hello"){
-            steps{
-                script{
-                    hello()
-                }
-            }
-        }
         stage("Code"){
             steps{
-               script{
-                clone("https://github.com/LondheShubham153/django-notes-app.git","main")
-               }
-                
+                echo "Cloning the Code"
+                git url:"https://github.com/neeraj-gs/django-notes-app.git",branch:"main"
+                echo "Code Cloning successfull"
             }
+            
         }
         stage("Build"){
             steps{
-                script{
-                docker_build("notes-app","latest","trainwithshubham")
-                }
+                echo "Building the Code"
+                sh "docker build -t notes-app:latest ."
             }
         }
-        stage("Push to DockerHub"){
+        stage("Test"){
             steps{
-                script{
-                    docker_push("notes-app","latest","trainwithshubham")
+                echo "Testing the Code"
+            }
+        }
+        stage("Push to Docker Hub"){
+            steps{
+                echo "Pushinf image to docker hu"
+                withCredentials([usernamePassword('credentialsId':"dockerHubCred",passwordVariable:"dockerHubPass",usernameVariable:"dockerHubUser")]){
+                    sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPass}"
+                    sh "docker image tag notes-app:latest neerajgs/notes-app:latest"
+                    sh "docker push neerajgs/notes-app:latest"
                 }
             }
         }
         stage("Deploy"){
             steps{
-                echo "This is deploying the code"
-                sh "docker compose down && docker compose up -d"
+                echo "Deploying the Code"
+                sh "docker compose up -d"
             }
         }
     }
